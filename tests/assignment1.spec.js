@@ -12,29 +12,35 @@ const testCases = [
   { id: 'Pos_Fun_0009', input: 'eeyi ooka dhiyan', expected: 'ඒයි ඕක දියන්' },
   { id: 'Pos_Fun_0010', input: 'hari hari hodhaayi', expected: 'හරි හරි හොදායි' },
   { id: 'Pos_Fun_0011', input: 'api naetum panthi giyaa', expected: 'අපි නැටුම් පන්ති ගියා' }
-  
 ];
 
 test.describe('IT3040 Assignment 1 - Translation Test Suite', () => {
 
   test.beforeEach(async ({ page }) => {
-    
-    await page.goto('https://www.swifttranslator.com/', { waitUntil: 'networkidle' });
+    // වෙබ් අඩවිය ලෝඩ් වීමට විනාඩි 2ක් (120000ms) ලබා දී ඇත
+    await page.goto('https://www.swifttranslator.com/', { 
+      waitUntil: 'networkidle', 
+      timeout: 120000 
+    });
   });
 
   for (const data of testCases) {
     test(`${data.id}: ${data.input}`, async ({ page }) => {
       
       const inputBox = page.locator('textarea').first();
+      
+      // TextArea එක පෙනෙන තෙක් (Visible) තත්පර 30ක් සිටීමට අණ කර ඇත
+      await inputBox.waitFor({ state: 'visible', timeout: 30000 });
+      
       await inputBox.fill(data.input);
 
-      
+      // Output එක එනකල් උපරිම තත්පර 20ක් බලන් ඉන්නවා
       const outputBox = page.locator('div.w-full.whitespace-pre-wrap').first();
-      await expect(outputBox).not.toBeEmpty({ timeout: 15000 });
+      await expect(outputBox).not.toBeEmpty({ timeout: 20000 });
 
       const actualOutput = await outputBox.innerText();
 
-      
+      // අකුරු වල සුළු වෙනස්කම් මඟහැර පරීක්ෂා කිරීම
       const cleanActual = actualOutput.replace(/\s+/g, '').trim();
       const cleanExpected = data.expected.replace(/\s+/g, '').trim();
 
